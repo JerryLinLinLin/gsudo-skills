@@ -95,7 +95,7 @@ gsudo runs code with elevated privileges. Same-desktop elevation (gsudo, and Win
 desktop can hijack an elevation, and an active credentials cache widens that window. Only elevate code
 you trust, keep the cache off unless you need it (`gsudo -k` ends all sessions), and prefer elevating
 the single command that needs admin rather than a whole shell. See
-[`skills/gsudo/SKILL.md`](skills/gsudo/SKILL.md) §14 and [security.md](skills/gsudo/reference/security.md).
+[security.md](skills/gsudo/reference/security.md).
 
 ## Licensing
 

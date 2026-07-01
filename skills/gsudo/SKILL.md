@@ -98,7 +98,7 @@ Prepend options before the command: `gsudo [options] {command} [args]`.
 | `--debug` | Verbose internal debug output — first thing to try when something misbehaves. |
 
 **Microsoft-sudo-compatible aliases** (so muscle memory from *Sudo for Windows* works): `--inline`,
-`--new-window`, `--disable-input` (= `SecurityEnforceUacIsolation`, §14), `--preserve-env`,
+`--new-window`, `--disable-input` (= `SecurityEnforceUacIsolation`), `--preserve-env`,
 `-D` / `--chdir {dir}`.
 
 ```powershell
@@ -159,7 +159,7 @@ gsudo cache on -d 00:30:00      # idle timeout 30 min ( -d -1 = until logoff )
 
 > **Security note:** an active cache ≈ temporarily relaxing UAC/UIPI for the whitelisted process. A
 > malicious process already running as you could inject into it and elevate silently. It's off by
-> default for this reason — see §14 and [security.md](reference/security.md).
+> default for this reason — see [security.md](reference/security.md).
 
 Tune with `gsudo config CacheDuration 00:05:00` (or `Infinite`). Full details:
 [credentials-cache.md](reference/credentials-cache.md).
@@ -255,7 +255,7 @@ Integrity levels, low → high: `Untrusted, Low, Medium, MediumPlus, High (defau
 
 ## 7. Elevate in a new window
 
-Same-console elevation carries a mild risk (§14). Elevating in a **new** console avoids it, and is
+Same-console elevation carries a mild risk. Elevating in a **new** console avoids it, and is
 handy for fire-and-forget admin tasks.
 
 ```powershell
@@ -300,7 +300,7 @@ Keys that matter most (verified, v2.6.1):
 | `PowerShellLoadProfile` | Load `$PROFILE` on PowerShell elevations (= `--loadProfile`). |
 | `PathPrecedence` | Make gsudo win over Microsoft's `sudo` on `PATH` (§13). |
 | `Prompt` / `PipedPrompt` | CMD prompt string for elevated sessions (default is the red `#`). |
-| `SecurityEnforceUacIsolation` | Elevate with input closed (non-interactive, safer) (§14). |
+| `SecurityEnforceUacIsolation` | Elevate with input closed (non-interactive, safer). |
 | `LogLevel` | `All, Debug, Info` (default), `Warning, Error, None`. |
 | `ForceAttachedConsole` / `ForcePipedConsole` / `ForceVTConsole` | Force an elevation mode — troubleshooting only (§12). |
 | `ExceptionList` | Executables launched via `cmd /c` (default: `notepad.exe;powershell.exe;whoami.exe;vim.exe;nano.exe;`). |
@@ -424,29 +424,7 @@ comparison: [gsudo-vs-sudo](https://gerardog.github.io/gsudo/docs/gsudo-vs-sudo)
 
 ---
 
-## 14. Security & opsec
-
-gsudo (like same-desktop UAC itself) is a **convenience feature, not a security boundary** — Microsoft
-documents that same-desktop elevation "can be hijacked by unprivileged software on the same desktop."
-Your real protection is your AV and not running untrusted code, whether or not you use gsudo.
-
-- **Same-console risk:** a medium-integrity malicious process can drive a same-console elevated
-  process (keystrokes / screen-scrape). Mitigate by elevating in a **new window** (`-n`, or
-  `NewWindow.Force true`, §7), or with input isolation:
-  ```powershell
-  gsudo config SecurityEnforceUacIsolation true   # elevated command runs with input closed (= --disable-input)
-  ```
-- **Cache risk:** an active credentials cache (§4) lets a compromised whitelisted process elevate
-  silently — that's why it's **off by default**. `gsudo -k` ends all sessions; run it before leaving
-  your PC unattended.
-- **Least privilege:** elevate the *one* command that needs it (`gsudo {command}`), not a whole shell —
-  that's gsudo's entire point. Use `-i Low/Medium` to *drop* privilege for risky work (§6).
-
-Full reasoning: [security.md](reference/security.md).
-
----
-
-## 15. Troubleshooting
+## 14. Troubleshooting
 
 - **After install/upgrade** or `Unauthorized. (Different gsudo.exe?)` → **close all consoles and open
   new ones** (refreshes `PATH`).
