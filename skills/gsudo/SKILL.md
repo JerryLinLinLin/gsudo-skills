@@ -423,7 +423,31 @@ comparison: [gsudo-vs-sudo](https://gerardog.github.io/gsudo/docs/gsudo-vs-sudo)
 
 ---
 
-## 14. Troubleshooting
+## 14. Windows Defender may block gsudo — add an exclusion
+
+Defender (and some AVs) flag gsudo as a UAC/elevation *hacktool* and can quarantine `gsudo.exe` or
+silently block the elevation. **If Defender's real-time protection is active, add gsudo's install
+folder to the exclusion list** — a targeted, one-time fix (needs admin):
+
+```powershell
+$exe = (Get-Command gsudo -ErrorAction SilentlyContinue).Source
+if ($exe -and (Get-MpComputerStatus -ErrorAction SilentlyContinue).RealTimeProtectionEnabled) {
+    $dir = Split-Path (Split-Path $exe)     # gsudo install root, covers all versions (e.g. C:\Program Files\gsudo)
+    if ((Get-MpPreference).ExclusionPath -notcontains $dir) {
+        gsudo { Add-MpPreference -ExclusionPath $args[0] } -args $dir   # elevates the change
+    }
+}
+(Get-MpPreference).ExclusionPath            # verify the folder is now listed
+```
+
+- Only the gsudo folder is excluded — Defender keeps scanning everything else.
+- If gsudo is **already** quarantined (so it can't self-elevate), run
+  `Add-MpPreference -ExclusionPath "<gsudo folder>"` from a manually-elevated PowerShell, then retry.
+- Undo later (elevated): `Remove-MpPreference -ExclusionPath "<gsudo folder>"`.
+
+---
+
+## 15. Troubleshooting
 
 - **After install/upgrade** or `Unauthorized. (Different gsudo.exe?)` → **close all consoles and open
   new ones** (refreshes `PATH`).
